@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Abhirami YouTube Comment Picker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+        
+        body { 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #24243e 50%, #302b63 100%);
+            min-height: 100vh; 
+            padding: 20px; 
+            color: #fff; 
+            overflow-x: hidden;
+        }
+        
+        .floating-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .container { 
+            position: relative;
+            z-index: 2;
+            width: 100%; 
+            max-width: 1200px; 
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1); 
+            backdrop-filter: blur(20px); 
+            border-radius: 24px; 
+            overflow: hidden; 
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3); 
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: slideUp 0.8s ease-out;
+        }
+        
+        header { 
+            background: rgba(0, 0, 0, 0.2); 
+            padding: 40px 30px; 
+            text-align: center; 
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: shimmer 3s ease-in-out infinite;
+        }
+        
+        h1 { 
+            font-size: 3rem; 
+            margin-bottom: 15px; 
+            background: linear-gradient(45deg, #00d4ff, #f093fb, #f5576c, #4facfe);
+            background-size: 400% 400%;
+            -webkit-background-clip: text; 
+            background-clip: text; 
+            color: transparent; 
+            font-weight: 800; 
+            animation: gradientShift 4s ease infinite;
+        }
+        
+        .subtitle { 
+            color: rgba(255, 255, 255, 0.8); 
+            font-size: 1.2rem; 
+            font-weight: 300;
+        }
+        
+        .input-section { 
+            padding: 40px; 
+            background: rgba(0, 0, 0, 0.1); 
+        }
+        
+        .input-group { 
+            display: flex; 
+            gap: 20px; 
+            margin-bottom: 30px; 
+            align-items: stretch;
+        }
+        
+        input { 
+            flex: 1; 
+            padding: 18px 25px; 
+            border: none; 
+            border-radius: 16px; 
+            background: rgba(255, 255, 255, 0.1); 
+            color: white; 
+            font-size: 1.1rem; 
+            outline: none; 
+            border: 2px solid transparent; 
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: inherit;
+        }
+        
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        input:focus { 
+            border-color: #00d4ff; 
+            box-shadow: 0 0 0 4px rgba(0, 212, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .btn { 
+            padding: 18px 35px; 
+            background: linear-gradient(135deg, #00d4ff 0%, #f093fb 100%);
+            color: white; 
+            border: none; 
+            border-radius: 16px; 
+            cursor: pointer; 
+            font-size: 1.1rem; 
+            font-weight: 600; 
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+            font-family: inherit;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .btn:hover::before {
+            left: 100%;
+        }
+        
+        .btn:hover { 
+            transform: translateY(-3px); 
+            box-shadow: 0 15px 35px rgba(0, 212, 255, 0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(-1px);
+        }
+        
+        .btn:disabled { 
+            background: rgba(255, 255, 255, 0.1); 
+            cursor: not-allowed; 
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .pick-btn { 
+            background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
+            box-shadow: 0 8px 25px rgba(245, 87, 108, 0.3);
+        }
+        
+        .pick-btn:hover {
+            box-shadow: 0 15px 35px rgba(245, 87, 108, 0.4);
+        }
+        
+        .controls { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            gap: 20px; 
+        }
+        
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .checkbox-container:hover {
+            color: #4ecdc4;
+        }
+        
+        .checkbox-container input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            height: 0;
+            width: 0;
+        }
+        
+        .checkmark {
+            height: 20px;
+            width: 20px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            flex-shrink: 0;
+        }
+        
+        .checkbox-container:hover .checkmark {
+            border-color: #00d4ff;
+        }
+        
+        .checkbox-container input:checked ~ .checkmark {
+            background-color: #00d4ff;
+            border-color: #00d4ff;
+        }
+        
+        .checkmark:after {
+            content: "";
+            position: absolute;
+            display: none;
+            left: 6px;
+            top: 2px;
+            width: 6px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+        
+        .checkbox-container input:checked ~ .checkmark:after {
+            display: block;
+        }
+        
+        .checkbox-label {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.9);
+            user-select: none;
+        }
+        
+        .comment-count {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-weight: 500;
+            backdrop-filter: blur(10px);
+        }
+        
+        .results { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            min-height: 500px;
+            gap: 1px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .comments-section { 
+            padding: 30px; 
+            overflow-y: auto; 
+            max-height: 600px;
+            background: rgba(0, 0, 0, 0.1);
+        }
+        
+        .comments-section h2 { 
+            margin-bottom: 25px; 
+            color: #00d4ff; 
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .comment { 
+            background: rgba(255, 255, 255, 0.08); 
+            border-radius: 16px; 
+            padding: 20px; 
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            animation: slideInUp 0.6s ease forwards;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        
+        .comment:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+            background: rgba(255, 255, 255, 0.12);
+        }
+        
+        .comment strong {
+            color: #f093fb;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 8px;
+        }
+        
+        .winner-section { 
+            padding: 30px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            text-align: center;
+            background: rgba(0, 0, 0, 0.05);
+        }
+        
+        .winner-section h2 {
+            margin-bottom: 30px;
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #f5576c, #00d4ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .winner-card { 
+            background: rgba(255, 255, 255, 0.1); 
+            border-radius: 24px; 
+            padding: 40px; 
+            width: 100%; 
+            max-width: 400px; 
+            min-height: 300px; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .winner-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, transparent, rgba(0, 212, 255, 0.3), transparent);
+            animation: rotate 4s linear infinite;
+            opacity: 0;
+            transition: opacity 0.6s ease;
+        }
+        
+        .winner-card.active::before {
+            opacity: 1;
+        }
+        
+        .winner-card.active { 
+            border: 2px solid #00d4ff;
+            transform: scale(1.05);
+            box-shadow: 0 20px 40px rgba(0, 212, 255, 0.3);
+            animation: winnerPulse 2s ease-in-out infinite alternate;
+        }
+        
+        .winner-content {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .winner-author {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #00d4ff;
+            animation: bounceIn 0.8s ease;
+        }
+        
+        .winner-comment-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.9);
+            animation: fadeInUp 1s ease 0.3s both;
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #ff6b6b;
+            animation: confetti-fall 3s ease-out forwards;
+        }
+        
+        .firework {
+            position: fixed;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+        
+        .firework-spark {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        
+        .balloon {
+            position: fixed;
+            width: 40px;
+            height: 50px;
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            pointer-events: none;
+            z-index: 1001;
+            animation: balloon-float 5s ease-out forwards;
+            bottom: -60px;
+        }
+        
+        .balloon::before {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 1px;
+            height: 30px;
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 1px;
+        }
+        
+        .balloon::after {
+            content: '';
+            position: absolute;
+            bottom: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 4px;
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 50%;
+        }
+        
+        .balloon-1 { background: linear-gradient(45deg, #f5576c, #f093fb); }
+        .balloon-2 { background: linear-gradient(45deg, #00d4ff, #4facfe); }
+        .balloon-3 { background: linear-gradient(45deg, #f093fb, #c471ed); }
+        .balloon-4 { background: linear-gradient(45deg, #00d4ff, #0061ff); }
+        .balloon-5 { background: linear-gradient(45deg, #f5576c, #ff416c); }
+        .balloon-6 { background: linear-gradient(45deg, #4facfe, #00f2fe); }
+        
+        .error { 
+            background: rgba(245, 87, 108, 0.2); 
+            padding: 18px 25px; 
+            border-radius: 12px; 
+            margin-top: 20px; 
+            color: #ffb3b3; 
+            display: none;
+            border: 1px solid rgba(245, 87, 108, 0.3);
+            animation: shake 0.5s ease;
+        }
+        
+        .loading { 
+            display: none; 
+            text-align: center; 
+            padding: 40px;
+            background: rgba(0, 0, 0, 0.1);
+        }
+        
+        .spinner { 
+            width: 60px; 
+            height: 60px; 
+            border: 4px solid rgba(255, 255, 255, 0.1); 
+            border-top: 4px solid #00d4ff; 
+            border-radius: 50%; 
+            animation: spin 1s linear infinite; 
+            margin: 0 auto 20px; 
+        }
+        
+        .loading p {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        /* Animations */
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        @keyframes slideInUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-30px) rotate(120deg); }
+            66% { transform: translateY(-60px) rotate(240deg); }
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        @keyframes winnerPulse {
+            0% { box-shadow: 0 20px 40px rgba(0, 212, 255, 0.3); }
+            100% { box-shadow: 0 25px 50px rgba(0, 212, 255, 0.5); }
+        }
+        
+        @keyframes bounceIn {
+            0% { opacity: 0; transform: scale(0.3); }
+            50% { transform: scale(1.05); }
+            70% { transform: scale(0.9); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes confetti-fall {
+            0% { 
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% { 
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+        
+        @keyframes firework-explode {
+            0% {
+                transform: scale(0);
+                opacity: 1;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 0;
+            }
+        }
+        
+        @keyframes spark-fly {
+            0% {
+                transform: translate(0, 0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: scale(0);
+            }
+        }
+        
+        @keyframes balloon-float {
+            0% {
+                transform: translateY(0) translateX(0) rotate(0deg);
+                opacity: 1;
+            }
+            10% {
+                transform: translateY(-15vh) translateX(5px) rotate(1deg);
+            }
+            25% {
+                transform: translateY(-35vh) translateX(-8px) rotate(-2deg);
+            }
+            40% {
+                transform: translateY(-55vh) translateX(12px) rotate(2deg);
+            }
+            60% {
+                transform: translateY(-75vh) translateX(-6px) rotate(-1deg);
+            }
+            80% {
+                transform: translateY(-95vh) translateX(8px) rotate(1deg);
+            }
+            100% {
+                transform: translateY(-120vh) translateX(-3px) rotate(0deg);
+                opacity: 0.9;
+            }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        
+        @keyframes spin { 
+            0% { transform: rotate(0deg); } 
+            100% { transform: rotate(360deg); } 
+        }
+        
+        @media (max-width: 768px) { 
+            .results { 
+                grid-template-columns: 1fr; 
+            }
+            
+            .input-group {
+                flex-direction: column;
+            }
+            
+            .controls {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-particles"></div>
+    
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-trophy"></i>Abhirami YouTube Comment Picker</h1>
+            <p class="subtitle">Enter a YouTube video URL to fetch comments and randomly pick a winner</p>
+        </header>
+        
+        <div class="input-section">
+            <div class="input-group">
+                <input type="text" id="video-url" placeholder="Paste YouTube Video URL (e.g., https://www.youtube.com/watch?v=dQw4w9WgXcQ)">
+                <button class="btn" id="fetch-btn"><i class="fas fa-download"></i> Fetch Comments</button>
+            </div>
+            <div class="controls">
+                <div class="control-group">
+                    <button class="btn pick-btn" id="pick-btn" disabled><i class="fas fa-magic"></i> Pick Random Winner</button>
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="remove-duplicates" checked>
+                        <span class="checkmark"></span>
+                        <span class="checkbox-label">Remove Duplicate Comments</span>
+                    </label>
+                </div>
+                <div class="comment-count">
+                    <i class="fas fa-comments"></i> <span id="count">0</span> comments loaded
+                    <span id="duplicate-info" style="display:none; color: #ffa726; font-size: 0.9rem; margin-left: 10px;">
+                        (<span id="duplicate-count">0</span> duplicates removed)
+                    </span>
+                </div>
+            </div>
+            <div class="error" id="error-msg">Error: Unable to fetch comments. Please check the URL and try again.</div>
+        </div>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Fetching comments from YouTube...</p>
+        </div>
+        
+        <div class="results">
+            <div class="comments-section">
+                <h2><i class="fas fa-list"></i> Comments (<span id="comments-count">0</span>)</h2>
+                <div class="comments-list" id="comments-list">
+                    <p style="color: rgba(255,255,255,0.6); text-align: center; padding: 40px;">Comments will appear here after fetching from the video</p>
+                </div>
+            </div>
+            
+            <div class="winner-section">
+                <h2><i class="fas fa-crown"></i> Winner</h2>
+                <div class="winner-card" id="winner-card">
+                    <div id="winner-placeholder" style="color: rgba(255,255,255,0.6);">
+                        <i class="fas fa-dice" style="font-size: 3rem; margin-bottom: 20px; opacity: 0.5;"></i>
+                        <p>Click "Pick Random Winner" to select a lucky commenter!</p>
+                    </div>
+                    <div class="winner-content" id="winner-content" style="display:none;">
+                        <div class="winner-author" id="winner-author"></div>
+                        <div class="winner-comment-text" id="winner-comment"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const apiKey = 'AIzaSyDOwhLte9fV9tEBfXD4xi2PSIbfZG53b6k'; // Replace with your API key
+            const videoUrlInput = document.getElementById('video-url');
+            const fetchBtn = document.getElementById('fetch-btn');
+            const pickBtn = document.getElementById('pick-btn');
+            const commentsList = document.getElementById('comments-list');
+            const commentsCount = document.getElementById('comments-count');
+            const countDisplay = document.getElementById('count');
+            const removeDuplicatesCheckbox = document.getElementById('remove-duplicates');
+            const duplicateInfo = document.getElementById('duplicate-info');
+            const duplicateCount = document.getElementById('duplicate-count');
+            const loading = document.getElementById('loading');
+            const errorMsg = document.getElementById('error-msg');
+            const winnerCard = document.getElementById('winner-card');
+            const winnerPlaceholder = document.getElementById('winner-placeholder');
+            const winnerContent = document.getElementById('winner-content');
+            const winnerAuthor = document.getElementById('winner-author');
+            const winnerComment = document.getElementById('winner-comment');
+            let comments = [];
+
+            // Create floating particles
+            createFloatingParticles();
+            
+            function createFloatingParticles() {
+                const particlesContainer = document.querySelector('.floating-particles');
+                for (let i = 0; i < 20; i++) {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.left = Math.random() * 100 + '%';
+                    particle.style.top = Math.random() * 100 + '%';
+                    particle.style.animationDelay = Math.random() * 6 + 's';
+                    particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                    particlesContainer.appendChild(particle);
+                }
+            }
+
+            // ✅ Universal Video ID Extractor
+            function extractVideoId(url) {
+                try {
+                    const parsedUrl = new URL(url);
+                    if (parsedUrl.hostname.includes('youtu.be')) {
+                        return parsedUrl.pathname.slice(1);
+                    }
+                    if (parsedUrl.hostname.includes('youtube.com')) {
+                        if (parsedUrl.pathname.includes('/shorts/')) {
+                            return parsedUrl.pathname.split('/shorts/')[1];
+                        }
+                        return parsedUrl.searchParams.get('v');
+                    }
+                    return null;
+                } catch {
+                    return null;
+                }
+            }
+
+            async function fetchComments() {
+                const videoUrl = videoUrlInput.value.trim();
+                if (!videoUrl) return showError('Please enter a YouTube video URL');
+
+                const videoId = extractVideoId(videoUrl);
+                if (!videoId) return showError('Invalid YouTube URL. Please check and try again.');
+
+                loading.style.display = 'block';
+                errorMsg.style.display = 'none';
+                commentsList.innerHTML = '';
+                countDisplay.textContent = '0';
+                commentsCount.textContent = '0';
+                pickBtn.disabled = true;
+                
+                // Reset winner card
+                winnerCard.classList.remove('active');
+                winnerPlaceholder.style.display = 'block';
+                winnerContent.style.display = 'none';
+
+                try {
+                    const response = await fetch(`https://www.googleapis.com/youtube/v3/commentThreads?part=snippet&videoId=${videoId}&maxResults=100&key=${apiKey}`);
+                    const data = await response.json();
+                    if (!response.ok) throw new Error(data.error?.message || 'Failed to fetch comments');
+                    if (!data.items || data.items.length === 0) return showError('No comments found for this video');
+
+                    comments = data.items.map(item => ({
+                        author: item.snippet.topLevelComment.snippet.authorDisplayName,
+                        text: item.snippet.topLevelComment.snippet.textDisplay
+                    }));
+
+                    // Process comments based on duplicate removal setting
+                    const processedComments = processComments(comments);
+                    displayComments(processedComments.comments, processedComments.duplicatesRemoved);
+                    comments = processedComments.comments; // Update the global comments array
+                    pickBtn.disabled = false;
+                } catch (err) {
+                    showError(err.message);
+                } finally {
+                    loading.style.display = 'none';
+                }
+            }
+
+            function processComments(rawComments) {
+                if (!removeDuplicatesCheckbox.checked) {
+                    return { comments: rawComments, duplicatesRemoved: 0 };
+                }
+                
+                const seen = new Set();
+                const uniqueComments = [];
+                
+                rawComments.forEach(comment => {
+                    // Normalize text for comparison (trim, lowercase, remove extra spaces)
+                    const normalizedText = comment.text.trim().toLowerCase().replace(/\s+/g, ' ');
+                    const key = `${comment.author.toLowerCase()}-${normalizedText}`;
+                    
+                    if (!seen.has(key)) {
+                        seen.add(key);
+                        uniqueComments.push(comment);
+                    }
+                });
+                
+                const duplicatesRemoved = rawComments.length - uniqueComments.length;
+                return { comments: uniqueComments, duplicatesRemoved };
+            }
+
+            function displayComments(comments, duplicatesRemoved = 0) {
+                commentsList.innerHTML = '';
+                countDisplay.textContent = comments.length;
+                commentsCount.textContent = comments.length;
+                
+                // Show duplicate info if any were removed
+                if (duplicatesRemoved > 0) {
+                    duplicateCount.textContent = duplicatesRemoved;
+                    duplicateInfo.style.display = 'inline';
+                } else {
+                    duplicateInfo.style.display = 'none';
+                }
+
+                comments.forEach((comment, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'comment';
+                    div.style.animationDelay = (index * 0.1) + 's';
+                    div.innerHTML = `<strong><i class="fas fa-user"></i> ${comment.author}</strong><p>${comment.text}</p>`;
+                    commentsList.appendChild(div);
+                });
+            }
+
+            function createConfetti() {
+                const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#ffa726', '#ab47bc'];
+                
+                for (let i = 0; i < 50; i++) {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animationDelay = Math.random() * 3 + 's';
+                    confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                    document.body.appendChild(confetti);
+                    
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, 5000);
+                }
+            }
+
+            function createFireworks() {
+                const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#ffa726', '#ab47bc', '#66bb6a', '#ef5350'];
+                
+                // Create multiple fireworks with delays
+                for (let f = 0; f < 5; f++) {
+                    setTimeout(() => {
+                        // Random position for each firework
+                        const x = Math.random() * window.innerWidth;
+                        const y = Math.random() * (window.innerHeight * 0.6) + (window.innerHeight * 0.1);
+                        
+                        createSingleFirework(x, y, colors);
+                    }, f * 400);
+                }
+            }
+            
+            function createSingleFirework(x, y, colors) {
+                const firework = document.createElement('div');
+                firework.className = 'firework';
+                firework.style.left = x + 'px';
+                firework.style.top = y + 'px';
+                firework.style.width = '8px';
+                firework.style.height = '8px';
+                firework.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                firework.style.animation = 'firework-explode 0.6s ease-out forwards';
+                document.body.appendChild(firework);
+                
+                // Create sparks
+                const sparkCount = 12;
+                for (let i = 0; i < sparkCount; i++) {
+                    const spark = document.createElement('div');
+                    spark.className = 'firework-spark';
+                    spark.style.left = x + 'px';
+                    spark.style.top = y + 'px';
+                    spark.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    
+                    // Calculate spark direction
+                    const angle = (360 / sparkCount) * i;
+                    const distance = Math.random() * 150 + 100;
+                    const radian = (angle * Math.PI) / 180;
+                    const deltaX = Math.cos(radian) * distance;
+                    const deltaY = Math.sin(radian) * distance;
+                    
+                    spark.style.animation = `spark-fly 1.5s ease-out forwards`;
+                    spark.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+                    
+                    document.body.appendChild(spark);
+                    
+                    // Remove spark after animation
+                    setTimeout(() => {
+                        spark.remove();
+                    }, 1500);
+                }
+                
+                // Remove firework center after animation
+                setTimeout(() => {
+                    firework.remove();
+                }, 600);
+                
+                // Add screen shake effect
+                document.body.style.animation = 'shake 0.3s ease-in-out';
+                setTimeout(() => {
+                    document.body.style.animation = '';
+                }, 300);
+            }
+            
+            function createBalloons() {
+                const balloonCount = window.innerWidth < 768 ? 10 : 20;
+                const colors = ['balloon-1', 'balloon-2', 'balloon-3', 'balloon-4', 'balloon-5', 'balloon-6'];
+                
+                for (let i = 0; i < balloonCount; i++) {
+                    const balloon = document.createElement('div');
+                    balloon.className = `balloon ${colors[Math.floor(Math.random() * colors.length)]}`;
+                    
+                    // Random horizontal position across the screen
+                    balloon.style.left = Math.random() * (window.innerWidth - 40) + 'px';
+                    
+                    // Stagger the balloon releases for continuous effect
+                    balloon.style.animationDelay = (i * 0.15) + 's';
+                    
+                    // Vary animation duration for natural movement
+                    const duration = Math.random() * 1.5 + 4; // 4-5.5 seconds
+                    balloon.style.animationDuration = duration + 's';
+                    
+                    document.body.appendChild(balloon);
+                    
+                    // Remove balloon after animation completes
+                    setTimeout(() => {
+                        if (balloon.parentNode) {
+                            balloon.remove();
+                        }
+                    }, (duration + 1) * 1000);
+                }
+            }
+
+            function pickRandomComment() {
+                if (!comments.length) return;
+                
+                // Add suspense with multiple quick selections
+                let iterations = 0;
+                const maxIterations = 15;
+                
+                const quickPick = setInterval(() => {
+                    const randomComment = comments[Math.floor(Math.random() * comments.length)];
+                    winnerAuthor.textContent = randomComment.author;
+                    winnerComment.innerHTML = randomComment.text;
+                    iterations++;
+                    
+                    if (iterations >= maxIterations) {
+                        clearInterval(quickPick);
+                        
+                        // Final winner selection
+                        setTimeout(() => {
+                            const winner = comments[Math.floor(Math.random() * comments.length)];
+                            winnerAuthor.textContent = winner.author;
+                            winnerComment.innerHTML = winner.text;
+                            
+                            winnerPlaceholder.style.display = 'none';
+                            winnerContent.style.display = 'block';
+                            winnerCard.classList.add('active');
+                            
+                            // Trigger confetti, fireworks, and balloons
+                            createConfetti();
+                            
+                            // Delay fireworks slightly for dramatic effect
+                            setTimeout(() => {
+                                createFireworks();
+                            }, 500);
+                            
+                            // Release balloons with a slight delay
+                            setTimeout(() => {
+                                createBalloons();
+                            }, 800);
+                            
+                            // Reset animations
+                            winnerAuthor.style.animation = 'none';
+                            winnerComment.style.animation = 'none';
+                            
+                            setTimeout(() => {
+                                winnerAuthor.style.animation = 'bounceIn 0.8s ease';
+                                winnerComment.style.animation = 'fadeInUp 1s ease 0.3s both';
+                            }, 50);
+                            
+                        }, 200);
+                    }
+                }, 100);
+                
+                // Show winner content immediately for the animation effect
+                winnerPlaceholder.style.display = 'none';
+                winnerContent.style.display = 'block';
+            }
+
+            function showError(msg) {
+                errorMsg.textContent = `Error: ${msg}`;
+                errorMsg.style.display = 'block';
+                setTimeout(() => {
+                    errorMsg.style.display = 'none';
+                }, 5000);
+            }
+
+            fetchBtn.addEventListener('click', fetchComments);
+            pickBtn.addEventListener('click', pickRandomComment);
+            
+            // Handle duplicate removal checkbox change
+            removeDuplicatesCheckbox.addEventListener('change', () => {
+                if (comments.length > 0) {
+                    // Re-fetch and process the original comments
+                    fetchComments();
+                }
+            });
+            
+            // Enter key support for input
+            videoUrlInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    fetchComments();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

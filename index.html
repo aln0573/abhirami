@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Abhirami YouTube Comment Picker</title>
+    <title>YouTube Comment Picker</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
@@ -329,8 +329,8 @@
         }
         
         .winner-section h2 {
-            margin-bottom: 30px;
-            font-size: 2rem;
+            margin-bottom: 40px;
+            font-size: 2.5rem;
             font-weight: 700;
             background: linear-gradient(45deg, #f5576c, #00d4ff);
             -webkit-background-clip: text;
@@ -341,10 +341,10 @@
         .winner-card { 
             background: rgba(255, 255, 255, 0.1); 
             border-radius: 24px; 
-            padding: 40px; 
+            padding: 50px 40px; 
             width: 100%; 
-            max-width: 400px; 
-            min-height: 300px; 
+            max-width: 600px; 
+            min-height: 250px; 
             display: flex; 
             flex-direction: column; 
             justify-content: center; 
@@ -384,15 +384,15 @@
         }
         
         .winner-author {
-            font-size: 1.4rem;
+            font-size: 1.6rem;
             font-weight: 700;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             color: #00d4ff;
             animation: bounceIn 0.8s ease;
         }
         
         .winner-comment-text {
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             line-height: 1.6;
             color: rgba(255, 255, 255, 0.9);
             animation: fadeInUp 1s ease 0.3s both;
@@ -494,6 +494,17 @@
         .loading p {
             font-size: 1.1rem;
             color: rgba(255, 255, 255, 0.8);
+        }
+
+        .virtual-scroll {
+            height: 600px;
+            overflow-y: auto;
+        }
+
+        .virtual-item {
+            min-height: 80px;
+            display: flex;
+            align-items: flex-start;
         }
         
         /* Animations */
@@ -643,8 +654,8 @@
     
     <div class="container">
         <header>
-            <h1><i class="fas fa-trophy"></i>Abhirami YouTube Comment Picker</h1>
-            <p class="subtitle">Enter a YouTube video URL to fetch comments and randomly pick a winner</p>
+            <h1><i class="fas fa-trophy"></i> YouTube Comment Picker</h1>
+            <p class="subtitle">Enter a YouTube video URL to fetch up to 3000 comments and randomly pick a winner</p>
         </header>
         
         <div class="input-section">
@@ -776,15 +787,47 @@
                 winnerContent.style.display = 'none';
 
                 try {
-                    const response = await fetch(`https://www.googleapis.com/youtube/v3/commentThreads?part=snippet&videoId=${videoId}&maxResults=100&key=${apiKey}`);
-                    const data = await response.json();
-                    if (!response.ok) throw new Error(data.error?.message || 'Failed to fetch comments');
-                    if (!data.items || data.items.length === 0) return showError('No comments found for this video');
+                    let allComments = [];
+                    let nextPageToken = '';
+                    let totalFetched = 0;
+                    const maxComments = 3000; // Increased to 3000 comments
+                    const batchSize = 100; // YouTube API max per request
+                    
+                    // Fetch multiple pages of comments
+                    do {
+                        const url = `https://www.googleapis.com/youtube/v3/commentThreads?part=snippet&videoId=${videoId}&maxResults=${batchSize}&key=${apiKey}${nextPageToken ? `&pageToken=${nextPageToken}` : ''}`;
+                        const response = await fetch(url);
+                        const data = await response.json();
+                        
+                        if (!response.ok) throw new Error(data.error?.message || 'Failed to fetch comments');
+                        if (!data.items || data.items.length === 0) break;
 
-                    comments = data.items.map(item => ({
-                        author: item.snippet.topLevelComment.snippet.authorDisplayName,
-                        text: item.snippet.topLevelComment.snippet.textDisplay
-                    }));
+                        const pageComments = data.items.map(item => ({
+                            author: item.snippet.topLevelComment.snippet.authorDisplayName,
+                            text: item.snippet.topLevelComment.snippet.textDisplay
+                        }));
+                        
+                        allComments = [...allComments, ...pageComments];
+                        totalFetched += pageComments.length;
+                        nextPageToken = data.nextPageToken || '';
+                        
+                        // Update loading text with progress and estimated remaining
+                        const loadingText = document.querySelector('#loading p');
+                        if (loadingText) {
+                            const progress = Math.min((totalFetched / maxComments) * 100, 100);
+                            loadingText.innerHTML = `Fetching comments from YouTube...<br><strong>${totalFetched}</strong> loaded (${progress.toFixed(1)}% complete)`;
+                        }
+                        
+                        // Add a small delay to prevent hitting rate limits too aggressively
+                        if (nextPageToken && totalFetched < maxComments) {
+                            await new Promise(resolve => setTimeout(resolve, 100)); // 100ms delay between requests
+                        }
+                        
+                    } while (nextPageToken && totalFetched < maxComments);
+
+                    if (allComments.length === 0) return showError('No comments found for this video');
+                    
+                    comments = allComments;
 
                     // Process comments based on duplicate removal setting
                     const processedComments = processComments(comments);
@@ -795,6 +838,11 @@
                     showError(err.message);
                 } finally {
                     loading.style.display = 'none';
+                    // Reset loading text
+                    const loadingText = document.querySelector('#loading p');
+                    if (loadingText) {
+                        loadingText.textContent = 'Fetching comments from YouTube...';
+                    }
                 }
             }
 
@@ -834,13 +882,105 @@
                     duplicateInfo.style.display = 'none';
                 }
 
-                comments.forEach((comment, index) => {
+                // For large comment sets, use virtual scrolling approach
+                if (comments.length > 200) {
+                    renderCommentsVirtual(comments);
+                } else {
+                    renderComments(comments);
+                }
+            }
+            
+            function renderComments(comments) {
+                // Use DocumentFragment for better performance with many comments
+                const fragment = document.createDocumentFragment();
+                
+                comments.slice(0, 200).forEach((comment, index) => {
                     const div = document.createElement('div');
                     div.className = 'comment';
-                    div.style.animationDelay = (index * 0.1) + 's';
-                    div.innerHTML = `<strong><i class="fas fa-user"></i> ${comment.author}</strong><p>${comment.text}</p>`;
-                    commentsList.appendChild(div);
+                    div.style.animationDelay = Math.min(index * 0.02, 1) + 's'; // Reduced animation delay
+                    div.innerHTML = `<strong><i class="fas fa-user"></i> ${escapeHtml(comment.author)}</strong><p>${escapeHtml(comment.text)}</p>`;
+                    fragment.appendChild(div);
                 });
+                
+                commentsList.appendChild(fragment);
+                
+                // Show message if more comments are available but not displayed
+                if (comments.length > 200) {
+                    const moreDiv = document.createElement('div');
+                    moreDiv.style.textAlign = 'center';
+                    moreDiv.style.padding = '20px';
+                    moreDiv.style.color = 'rgba(255, 255, 255, 0.6)';
+                    moreDiv.innerHTML = `<i class="fas fa-info-circle"></i> Showing first 200 comments (${comments.length - 200} more loaded for winner selection)`;
+                    commentsList.appendChild(moreDiv);
+                }
+            }
+
+            function renderCommentsVirtual(comments) {
+                // Simple virtual scrolling implementation for large datasets
+                const container = document.createElement('div');
+                container.className = 'virtual-scroll';
+                
+                // Show first 100 comments initially
+                const initialComments = comments.slice(0, 100);
+                const fragment = document.createDocumentFragment();
+                
+                initialComments.forEach((comment, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'comment';
+                    div.innerHTML = `<strong><i class="fas fa-user"></i> ${escapeHtml(comment.author)}</strong><p>${escapeHtml(comment.text)}</p>`;
+                    fragment.appendChild(div);
+                });
+                
+                container.appendChild(fragment);
+                
+                // Add load more functionality
+                const loadMoreBtn = document.createElement('button');
+                loadMoreBtn.className = 'btn';
+                loadMoreBtn.style.width = '100%';
+                loadMoreBtn.style.marginTop = '20px';
+                loadMoreBtn.innerHTML = `<i class="fas fa-chevron-down"></i> Load More Comments (${comments.length - 100} remaining)`;
+                
+                let currentlyLoaded = 100;
+                loadMoreBtn.addEventListener('click', () => {
+                    const nextBatch = comments.slice(currentlyLoaded, currentlyLoaded + 100);
+                    const batchFragment = document.createDocumentFragment();
+                    
+                    nextBatch.forEach(comment => {
+                        const div = document.createElement('div');
+                        div.className = 'comment';
+                        div.innerHTML = `<strong><i class="fas fa-user"></i> ${escapeHtml(comment.author)}</strong><p>${escapeHtml(comment.text)}</p>`;
+                        batchFragment.appendChild(div);
+                    });
+                    
+                    container.insertBefore(batchFragment, loadMoreBtn);
+                    currentlyLoaded += 100;
+                    
+                    if (currentlyLoaded >= comments.length) {
+                        loadMoreBtn.remove();
+                    } else {
+                        loadMoreBtn.innerHTML = `<i class="fas fa-chevron-down"></i> Load More Comments (${comments.length - currentlyLoaded} remaining)`;
+                    }
+                });
+                
+                if (comments.length > 100) {
+                    container.appendChild(loadMoreBtn);
+                }
+                
+                // Info message
+                const infoDiv = document.createElement('div');
+                infoDiv.style.textAlign = 'center';
+                infoDiv.style.padding = '20px';
+                infoDiv.style.color = 'rgba(255, 255, 255, 0.6)';
+                infoDiv.innerHTML = `<i class="fas fa-info-circle"></i> All ${comments.length} comments loaded for winner selection`;
+                container.appendChild(infoDiv);
+                
+                commentsList.appendChild(container);
+            }
+
+            function escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
             }
 
             function createConfetti() {
@@ -965,7 +1105,7 @@
                 const quickPick = setInterval(() => {
                     const randomComment = comments[Math.floor(Math.random() * comments.length)];
                     winnerAuthor.textContent = randomComment.author;
-                    winnerComment.innerHTML = randomComment.text;
+                    winnerComment.innerHTML = escapeHtml(randomComment.text);
                     iterations++;
                     
                     if (iterations >= maxIterations) {
@@ -975,7 +1115,7 @@
                         setTimeout(() => {
                             const winner = comments[Math.floor(Math.random() * comments.length)];
                             winnerAuthor.textContent = winner.author;
-                            winnerComment.innerHTML = winner.text;
+                            winnerComment.innerHTML = escapeHtml(winner.text);
                             
                             winnerPlaceholder.style.display = 'none';
                             winnerContent.style.display = 'block';
@@ -1026,8 +1166,10 @@
             // Handle duplicate removal checkbox change
             removeDuplicatesCheckbox.addEventListener('change', () => {
                 if (comments.length > 0) {
-                    // Re-fetch and process the original comments
-                    fetchComments();
+                    // Re-process the existing comments without re-fetching
+                    const processedComments = processComments(comments);
+                    displayComments(processedComments.comments, processedComments.duplicatesRemoved);
+                    comments = processedComments.comments;
                 }
             });
             

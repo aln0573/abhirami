@@ -63,6 +63,9 @@
             text-align: center; 
             position: relative;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         
         header::before {
@@ -76,6 +79,25 @@
             animation: shimmer 3s ease-in-out infinite;
         }
         
+        .profile {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            margin-bottom: 25px;
+            transition: all 0.4s ease;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .profile:hover {
+            transform: scale(1.05);
+            border-color: #00d4ff;
+            box-shadow: 0 12px 30px rgba(0, 212, 255, 0.4);
+        }
+        
         h1 { 
             font-size: 3rem; 
             margin-bottom: 15px; 
@@ -86,12 +108,17 @@
             color: transparent; 
             font-weight: 800; 
             animation: gradientShift 4s ease infinite;
+            position: relative;
+            z-index: 2;
         }
         
         .subtitle { 
             color: rgba(255, 255, 255, 0.8); 
             font-size: 1.2rem; 
             font-weight: 300;
+            position: relative;
+            z-index: 2;
+            max-width: 600px;
         }
         
         .input-section { 
@@ -197,6 +224,40 @@
             display: flex;
             align-items: center;
             gap: 20px;
+        }
+        
+        .raffle-settings {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 12px 20px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .raffle-label {
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .winners-select {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
+            font-family: inherit;
+            font-weight: 500;
+            outline: none;
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .winners-select:focus {
+            border-color: #00d4ff;
+            box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.2);
         }
         
         .checkbox-container {
@@ -338,13 +399,21 @@
             color: transparent;
         }
         
+        .winners-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-height: 500px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+        
         .winner-card { 
             background: rgba(255, 255, 255, 0.1); 
             border-radius: 24px; 
-            padding: 50px 40px; 
+            padding: 30px; 
             width: 100%; 
-            max-width: 600px; 
-            min-height: 250px; 
             display: flex; 
             flex-direction: column; 
             justify-content: center; 
@@ -373,8 +442,8 @@
         
         .winner-card.active { 
             border: 2px solid #00d4ff;
-            transform: scale(1.05);
-            box-shadow: 0 20px 40px rgba(0, 212, 255, 0.3);
+            transform: scale(1.02);
+            box-shadow: 0 15px 30px rgba(0, 212, 255, 0.3);
             animation: winnerPulse 2s ease-in-out infinite alternate;
         }
         
@@ -384,18 +453,49 @@
         }
         
         .winner-author {
-            font-size: 1.6rem;
+            font-size: 1.4rem;
             font-weight: 700;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             color: #00d4ff;
             animation: bounceIn 0.8s ease;
         }
         
         .winner-comment-text {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             line-height: 1.6;
             color: rgba(255, 255, 255, 0.9);
             animation: fadeInUp 1s ease 0.3s both;
+        }
+        
+        .winner-placeholder {
+            color: rgba(255, 255, 255, 0.6);
+            text-align: center;
+            padding: 40px 20px;
+            border-radius: 24px;
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+        }
+        
+        .winner-placeholder i {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+        
+        .scrolling-names {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #00d4ff;
+            height: 60px;
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .scrolling-names-inner {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            animation: scrollNames 5s ease-in-out;
         }
         
         .confetti {
@@ -421,47 +521,26 @@
             pointer-events: none;
         }
         
-        .balloon {
+        .firecracker {
             position: fixed;
-            width: 40px;
-            height: 50px;
-            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            width: 6px;
+            height: 20px;
+            background: #ff6b6b;
+            border-radius: 2px;
             pointer-events: none;
             z-index: 1001;
-            animation: balloon-float 5s ease-out forwards;
-            bottom: -60px;
+            animation: firecracker-pop 1s ease-out forwards;
         }
         
-        .balloon::before {
-            content: '';
+        .firecracker-spark {
             position: absolute;
-            bottom: -8px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 1px;
-            height: 30px;
-            background: rgba(0, 0, 0, 0.6);
-            border-radius: 1px;
-        }
-        
-        .balloon::after {
-            content: '';
-            position: absolute;
-            bottom: -12px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 4px;
-            height: 4px;
-            background: rgba(0, 0, 0, 0.6);
+            width: 2px;
+            height: 2px;
             border-radius: 50%;
+            background: #ffa726;
+            pointer-events: none;
+            animation: spark-fly 0.8s ease-out forwards;
         }
-        
-        .balloon-1 { background: linear-gradient(45deg, #f5576c, #f093fb); }
-        .balloon-2 { background: linear-gradient(45deg, #00d4ff, #4facfe); }
-        .balloon-3 { background: linear-gradient(45deg, #f093fb, #c471ed); }
-        .balloon-4 { background: linear-gradient(45deg, #00d4ff, #0061ff); }
-        .balloon-5 { background: linear-gradient(45deg, #f5576c, #ff416c); }
-        .balloon-6 { background: linear-gradient(45deg, #4facfe, #00f2fe); }
         
         .error { 
             background: rgba(245, 87, 108, 0.2); 
@@ -540,8 +619,8 @@
         }
         
         @keyframes winnerPulse {
-            0% { box-shadow: 0 20px 40px rgba(0, 212, 255, 0.3); }
-            100% { box-shadow: 0 25px 50px rgba(0, 212, 255, 0.5); }
+            0% { box-shadow: 0 15px 30px rgba(0, 212, 255, 0.3); }
+            100% { box-shadow: 0 20px 40px rgba(0, 212, 255, 0.5); }
         }
         
         @keyframes bounceIn {
@@ -554,6 +633,13 @@
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(30px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes scrollNames {
+            0% { transform: translateY(100%); opacity: 0; }
+            10% { transform: translateY(0); opacity: 1; }
+            90% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(-100%); opacity: 0; }
         }
         
         @keyframes confetti-fall {
@@ -581,6 +667,21 @@
             }
         }
         
+        @keyframes firecracker-pop {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: translateY(-20px) scale(1.1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-40px) scale(0);
+                opacity: 0;
+            }
+        }
+        
         @keyframes spark-fly {
             0% {
                 transform: translate(0, 0) scale(1);
@@ -589,32 +690,6 @@
             100% {
                 opacity: 0;
                 transform: scale(0);
-            }
-        }
-        
-        @keyframes balloon-float {
-            0% {
-                transform: translateY(0) translateX(0) rotate(0deg);
-                opacity: 1;
-            }
-            10% {
-                transform: translateY(-15vh) translateX(5px) rotate(1deg);
-            }
-            25% {
-                transform: translateY(-35vh) translateX(-8px) rotate(-2deg);
-            }
-            40% {
-                transform: translateY(-55vh) translateX(12px) rotate(2deg);
-            }
-            60% {
-                transform: translateY(-75vh) translateX(-6px) rotate(-1deg);
-            }
-            80% {
-                transform: translateY(-95vh) translateX(8px) rotate(1deg);
-            }
-            100% {
-                transform: translateY(-120vh) translateX(-3px) rotate(0deg);
-                opacity: 0.9;
             }
         }
         
@@ -632,6 +707,17 @@
         @media (max-width: 768px) { 
             .results { 
                 grid-template-columns: 1fr; 
+                grid-template-areas: 
+                    "winners"
+                    "comments";
+            }
+            
+            .winner-section {
+                grid-area: winners;
+            }
+            
+            .comments-section {
+                grid-area: comments;
             }
             
             .input-group {
@@ -641,6 +727,21 @@
             .controls {
                 flex-direction: column;
                 gap: 15px;
+            }
+            
+            .control-group {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .raffle-settings {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .profile {
+                width: 100px;
+                height: 100px;
             }
             
             h1 {
@@ -654,8 +755,10 @@
     
     <div class="container">
         <header>
-            <h1><i class="fas fa-trophy"></i>Abhirami YouTube Comment Picker</h1>
-            <p class="subtitle">Enter a YouTube video URL to fetch up to 10,000 comments and randomly pick a winner</p>
+            <!-- Profile Picture -->
+            <img src="profile.jpg" class="profile" alt="Profile Picture">
+            <h1><i class="fas fa-trophy"></i> Abhirami YouTube Comment Picker</h1>
+            <p class="subtitle">Enter a YouTube video URL to fetch up to 10,000 comments and randomly pick winners</p>
         </header>
         
         <div class="input-section">
@@ -665,7 +768,19 @@
             </div>
             <div class="controls">
                 <div class="control-group">
-                    <button class="btn pick-btn" id="pick-btn" disabled><i class="fas fa-magic"></i> Pick Random Winner</button>
+                    <button class="btn pick-btn" id="pick-btn" disabled><i class="fas fa-magic"></i> Pick Random Winners</button>
+                    
+                    <div class="raffle-settings">
+                        <span class="raffle-label">Number of winners:</span>
+                        <select class="winners-select" id="winners-select">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                    </div>
+                    
                     <label class="checkbox-container">
                         <input type="checkbox" id="remove-duplicates" checked>
                         <span class="checkmark"></span>
@@ -688,24 +803,20 @@
         </div>
         
         <div class="results">
+            <div class="winner-section">
+                <h2><i class="fas fa-crown"></i> Winners</h2>
+                <div class="winners-container" id="winners-container">
+                    <div class="winner-placeholder" id="winner-placeholder">
+                        <i class="fas fa-dice"></i>
+                        <p>Click "Pick Random Winners" to select lucky commenters!</p>
+                    </div>
+                </div>
+            </div>
+            
             <div class="comments-section">
                 <h2><i class="fas fa-list"></i> Comments (<span id="comments-count">0</span>)</h2>
                 <div class="comments-list" id="comments-list">
                     <p style="color: rgba(255,255,255,0.6); text-align: center; padding: 40px;">Comments will appear here after fetching from the video</p>
-                </div>
-            </div>
-            
-            <div class="winner-section">
-                <h2><i class="fas fa-crown"></i> Winner</h2>
-                <div class="winner-card" id="winner-card">
-                    <div id="winner-placeholder" style="color: rgba(255,255,255,0.6);">
-                        <i class="fas fa-dice" style="font-size: 3rem; margin-bottom: 20px; opacity: 0.5;"></i>
-                        <p>Click "Pick Random Winner" to select a lucky commenter!</p>
-                    </div>
-                    <div class="winner-content" id="winner-content" style="display:none;">
-                        <div class="winner-author" id="winner-author"></div>
-                        <div class="winner-comment-text" id="winner-comment"></div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -725,11 +836,9 @@
             const duplicateCount = document.getElementById('duplicate-count');
             const loading = document.getElementById('loading');
             const errorMsg = document.getElementById('error-msg');
-            const winnerCard = document.getElementById('winner-card');
+            const winnersContainer = document.getElementById('winners-container');
             const winnerPlaceholder = document.getElementById('winner-placeholder');
-            const winnerContent = document.getElementById('winner-content');
-            const winnerAuthor = document.getElementById('winner-author');
-            const winnerComment = document.getElementById('winner-comment');
+            const winnersSelect = document.getElementById('winners-select');
             let comments = [];
 
             // Create floating particles
@@ -781,10 +890,9 @@
                 commentsCount.textContent = '0';
                 pickBtn.disabled = true;
                 
-                // Reset winner card
-                winnerCard.classList.remove('active');
-                winnerPlaceholder.style.display = 'block';
-                winnerContent.style.display = 'none';
+                // Reset winners container
+                winnersContainer.innerHTML = '';
+                winnersContainer.appendChild(winnerPlaceholder);
 
                 try {
                     let allComments = [];
@@ -1058,98 +1166,186 @@
                 setTimeout(() => {
                     firework.remove();
                 }, 600);
-                
-                // Add screen shake effect
-                document.body.style.animation = 'shake 0.3s ease-in-out';
-                setTimeout(() => {
-                    document.body.style.animation = '';
-                }, 300);
             }
             
-            function createBalloons() {
-                const balloonCount = window.innerWidth < 768 ? 10 : 20;
-                const colors = ['balloon-1', 'balloon-2', 'balloon-3', 'balloon-4', 'balloon-5', 'balloon-6'];
+            function createFirecrackers() {
+                const firecrackerCount = 20;
                 
-                for (let i = 0; i < balloonCount; i++) {
-                    const balloon = document.createElement('div');
-                    balloon.className = `balloon ${colors[Math.floor(Math.random() * colors.length)]}`;
+                for (let i = 0; i < firecrackerCount; i++) {
+                    const firecracker = document.createElement('div');
+                    firecracker.className = 'firecracker';
                     
-                    // Random horizontal position across the screen
-                    balloon.style.left = Math.random() * (window.innerWidth - 40) + 'px';
+                    // Random position at the bottom of the screen
+                    firecracker.style.left = Math.random() * (window.innerWidth - 40) + 'px';
+                    firecracker.style.bottom = '0px';
                     
-                    // Stagger the balloon releases for continuous effect
-                    balloon.style.animationDelay = (i * 0.15) + 's';
+                    // Random color
+                    const colors = ['#ff6b6b', '#ffa726', '#ffeb3b', '#4caf50', '#2196f3', '#9c27b0'];
+                    firecracker.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
                     
-                    // Vary animation duration for natural movement
-                    const duration = Math.random() * 1.5 + 4; // 4-5.5 seconds
-                    balloon.style.animationDuration = duration + 's';
+                    // Random delay
+                    firecracker.style.animationDelay = (i * 0.1) + 's';
                     
-                    document.body.appendChild(balloon);
+                    document.body.appendChild(firecracker);
                     
-                    // Remove balloon after animation completes
+                    // Create sparks when firecracker pops
                     setTimeout(() => {
-                        if (balloon.parentNode) {
-                            balloon.remove();
+                        createFirecrackerSparks(parseInt(firecracker.style.left), 
+                                              window.innerHeight - 40);
+                    }, 500 + (i * 100));
+                    
+                    // Remove firecracker after animation
+                    setTimeout(() => {
+                        if (firecracker.parentNode) {
+                            firecracker.remove();
                         }
-                    }, (duration + 1) * 1000);
+                    }, 1500 + (i * 100));
+                }
+            }
+            
+            function createFirecrackerSparks(x, y) {
+                const sparkCount = 8;
+                for (let i = 0; i < sparkCount; i++) {
+                    const spark = document.createElement('div');
+                    spark.className = 'firecracker-spark';
+                    spark.style.left = x + 'px';
+                    spark.style.top = y + 'px';
+                    
+                    // Calculate spark direction
+                    const angle = (360 / sparkCount) * i;
+                    const distance = Math.random() * 50 + 30;
+                    const radian = (angle * Math.PI) / 180;
+                    const deltaX = Math.cos(radian) * distance;
+                    const deltaY = Math.sin(radian) * distance;
+                    
+                    spark.style.animation = `spark-fly 0.8s ease-out forwards`;
+                    spark.style.transform = `translate(${deltaX}px, ${-deltaY}px)`;
+                    
+                    document.body.appendChild(spark);
+                    
+                    // Remove spark after animation
+                    setTimeout(() => {
+                        spark.remove();
+                    }, 800);
                 }
             }
 
-            function pickRandomComment() {
+            function pickRandomComments() {
                 if (!comments.length) return;
                 
-                // Add suspense with multiple quick selections
-                let iterations = 0;
-                const maxIterations = 15;
+                // Get the number of winners to select
+                const numWinners = parseInt(winnersSelect.value);
                 
-                const quickPick = setInterval(() => {
-                    const randomComment = comments[Math.floor(Math.random() * comments.length)];
-                    winnerAuthor.textContent = randomComment.author;
-                    winnerComment.innerHTML = escapeHtml(randomComment.text);
-                    iterations++;
+                // If there aren't enough comments for the requested number of winners
+                if (comments.length < numWinners) {
+                    showError(`Not enough comments to select ${numWinners} winners. Only ${comments.length} comments available.`);
+                    return;
+                }
+                
+                // Clear the winners container and show scrolling animation
+                winnersContainer.innerHTML = '';
+                
+                // Create temporary cards for the scrolling animation
+                const tempCards = [];
+                for (let i = 0; i < numWinners; i++) {
+                    const card = document.createElement('div');
+                    card.className = 'winner-card';
                     
-                    if (iterations >= maxIterations) {
-                        clearInterval(quickPick);
-                        
-                        // Final winner selection
-                        setTimeout(() => {
-                            const winner = comments[Math.floor(Math.random() * comments.length)];
-                            winnerAuthor.textContent = winner.author;
-                            winnerComment.innerHTML = escapeHtml(winner.text);
-                            
-                            winnerPlaceholder.style.display = 'none';
-                            winnerContent.style.display = 'block';
-                            winnerCard.classList.add('active');
-                            
-                            // Trigger confetti, fireworks, and balloons
-                            createConfetti();
-                            
-                            // Delay fireworks slightly for dramatic effect
-                            setTimeout(() => {
-                                createFireworks();
-                            }, 500);
-                            
-                            // Release balloons with a slight delay
-                            setTimeout(() => {
-                                createBalloons();
-                            }, 800);
-                            
-                            // Reset animations
-                            winnerAuthor.style.animation = 'none';
-                            winnerComment.style.animation = 'none';
-                            
-                            setTimeout(() => {
-                                winnerAuthor.style.animation = 'bounceIn 0.8s ease';
-                                winnerComment.style.animation = 'fadeInUp 1s ease 0.3s both';
-                            }, 50);
-                            
-                        }, 200);
-                    }
-                }, 100);
+                    const content = document.createElement('div');
+                    content.className = 'winner-content';
+                    
+                    const scrollingNames = document.createElement('div');
+                    scrollingNames.className = 'scrolling-names';
+                    
+                    const namesInner = document.createElement('div');
+                    namesInner.className = 'scrolling-names-inner';
+                    namesInner.textContent = 'Selecting winner...';
+                    
+                    scrollingNames.appendChild(namesInner);
+                    content.appendChild(scrollingNames);
+                    card.appendChild(content);
+                    
+                    winnersContainer.appendChild(card);
+                    tempCards.push(card);
+                }
                 
-                // Show winner content immediately for the animation effect
-                winnerPlaceholder.style.display = 'none';
-                winnerContent.style.display = 'block';
+                // Start the scrolling animation
+                const scrollDuration = 5000; // 5 seconds
+                let elapsed = 0;
+                const scrollInterval = 100; // Update every 100ms
+                
+                const scrollIntervalId = setInterval(() => {
+                    elapsed += scrollInterval;
+                    
+                    // Update each card with a random name
+                    tempCards.forEach(card => {
+                        const randomComment = comments[Math.floor(Math.random() * comments.length)];
+                        const namesInner = card.querySelector('.scrolling-names-inner');
+                        namesInner.textContent = randomComment.author;
+                    });
+                    
+                    // If we've reached the scroll duration, stop and show final winners
+                    if (elapsed >= scrollDuration) {
+                        clearInterval(scrollIntervalId);
+                        
+                        // Select final winners (unique)
+                        const winners = [];
+                        const usedIndices = new Set();
+                        
+                        while (winners.length < numWinners && usedIndices.size < comments.length) {
+                            const randomIndex = Math.floor(Math.random() * comments.length);
+                            if (!usedIndices.has(randomIndex)) {
+                                winners.push(comments[randomIndex]);
+                                usedIndices.add(randomIndex);
+                            }
+                        }
+                        
+                        // Display the actual winners
+                        winnersContainer.innerHTML = '';
+                        winners.forEach((winner, index) => {
+                            const winnerCard = createWinnerCard(winner);
+                            winnerCard.style.animationDelay = `${index * 0.2}s`;
+                            winnersContainer.appendChild(winnerCard);
+                            
+                            // Add active class with a slight delay for each card
+                            setTimeout(() => {
+                                winnerCard.classList.add('active');
+                            }, 100 + (index * 200));
+                        });
+                        
+                        // Trigger celebration effects
+                        createConfetti();
+                        createFireworks();
+                        createFirecrackers();
+                        
+                        document.body.style.animation = 'shake 0.5s ease-in-out';
+                        setTimeout(() => {
+                            document.body.style.animation = '';
+                        }, 500);
+                    }
+                }, scrollInterval);
+            }
+            
+            function createWinnerCard(winner) {
+                const card = document.createElement('div');
+                card.className = 'winner-card';
+                
+                const content = document.createElement('div');
+                content.className = 'winner-content';
+                
+                const author = document.createElement('div');
+                author.className = 'winner-author';
+                author.textContent = winner.author;
+                
+                const comment = document.createElement('div');
+                comment.className = 'winner-comment-text';
+                comment.innerHTML = escapeHtml(winner.text);
+                
+                content.appendChild(author);
+                content.appendChild(comment);
+                card.appendChild(content);
+                
+                return card;
             }
 
             function showError(msg) {
@@ -1161,19 +1357,16 @@
             }
 
             fetchBtn.addEventListener('click', fetchComments);
-            pickBtn.addEventListener('click', pickRandomComment);
-            
-            // Handle duplicate removal checkbox change
+            pickBtn.addEventListener('click', pickRandomComments);
+
             removeDuplicatesCheckbox.addEventListener('change', () => {
                 if (comments.length > 0) {
-                    // Re-process the existing comments without re-fetching
                     const processedComments = processComments(comments);
                     displayComments(processedComments.comments, processedComments.duplicatesRemoved);
                     comments = processedComments.comments;
                 }
             });
             
-            // Enter key support for input
             videoUrlInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
                     fetchComments();
